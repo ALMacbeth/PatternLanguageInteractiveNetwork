@@ -20,7 +20,7 @@ Full link: http://bekawestberg.me/blog/pattern-language/
 
 ## Features
 - Explore hierarchical relationships between spatial patterns  
-- Visualize nested layers interactively  
+- Visualise nested layers interactively  
 - Useful for urban analysis, design education, and research  
 
 ---
@@ -28,6 +28,5 @@ Full link: http://bekawestberg.me/blog/pattern-language/
 ## 💡 Usage
 Clone the repository and open the visualization in your browser:
 ```bash
-git clone [https://github.com/yourusername/pattern-language-visualization.git](https://github.com/mahmud-tantoush/PatternLanguageInteractiveNetwork.git)
-cd pattern-language-visualization
+git clone https://github.com/yourusername/pattern-language-visualization.git
 open index.html
