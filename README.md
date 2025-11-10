@@ -13,7 +13,7 @@ The tool can be used both as a **teaching aid** and an **analytical framework** 
 ---
 
 ## Acknowledgements
-Special thanks to [Beka Westberg](http://bekawestberg.me/blog/pattern-language/) for sharing the original dataset that made this project possible.
+Special thanks to [Beka Westberg](http://bekawestberg.me/blog/pattern-language/) for sharing the original dataset that made this project possible. Full link: http://bekawestberg.me/blog/pattern-language/
 
 ---
 
