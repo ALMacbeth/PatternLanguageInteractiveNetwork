@@ -27,7 +27,7 @@ Full link: http://bekawestberg.me/blog/pattern-language/
 
 ## Created by Mahmud Tantoush
 - website: [mahmud.tantoush.com](https://www.mahmudtantoush.com/)
-- This paper is related to a research paper currently in progress.
+- This tool is related to a research paper currently in progress.
 
 ---
 
