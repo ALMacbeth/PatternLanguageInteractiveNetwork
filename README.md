@@ -25,6 +25,12 @@ Full link: http://bekawestberg.me/blog/pattern-language/
 
 ---
 
+## Created by Mahmud Tantoush
+- website: [mahmud.tantoush.com](https://www.mahmudtantoush.com/)
+- This paper is related to a research paper currently in progress.
+
+---
+
 ## 💡 Usage
 Clone the repository and open the visualization in your browser:
 ```bash
