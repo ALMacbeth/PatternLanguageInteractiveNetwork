@@ -1,12 +1,14 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <title>A Patterns Language Network (Complex Nested Patterns)</title>
     <style>
         :root {
-            --panel-max: 1200px; /* fits typical desktop/laptop screens */
+            --panel-max: 1200px;
+            /* fits typical desktop/laptop screens */
         }
 
         body {
@@ -22,10 +24,11 @@
             background: #fff;
             border: 1px solid #ddd;
             border-radius: 10px;
-            box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
             padding: 8px;
             position: relative;
-            overflow: visible; /* ensure labels never clip */
+            overflow: visible;
+            /* ensure labels never clip */
         }
 
         .caption {
@@ -39,7 +42,7 @@
         .tooltip {
             position: absolute;
             pointer-events: none;
-            background: rgba(0,0,0,0.85);
+            background: rgba(0, 0, 0, 0.85);
             color: #fff;
             padding: 6px 8px;
             border-radius: 6px;
@@ -48,7 +51,7 @@
             white-space: nowrap;
             transform: translate(-50%, -120%);
             z-index: 10;
-            box-shadow: 0 4px 12px rgba(0,0,0,0.25);
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.25);
         }
 
         .layer-label {
@@ -78,14 +81,17 @@
         <p>
             This interactive visualisation reinterprets
             <em>A Pattern Language</em> as a directed hierarchical network,
-            allowing users to explore how patterns interact across scales—from buildings and streets to cities and regions.
+            allowing users to explore how patterns interact across scales—from buildings and streets to cities and
+            regions.
             By transforming the original text into a network model, the tool makes the nested structure of the language
             easier to understand, navigate, and query.
         </p>
         <p>
             It functions as both a teaching and analytical tool that can enable
-            comparisons between cities and revealing how  urban forms align with or diverge from Alexander’s spatial logic.
-            This approach supports future research by linking expert knowledge with data-informed analysis of cities as Complex Adaptive Systems.
+            comparisons between cities and revealing how urban forms align with or diverge from Alexander’s spatial
+            logic.
+            This approach supports future research by linking expert knowledge with data-informed analysis of cities as
+            Complex Adaptive Systems.
         </p>
 
         <h3>Acknowledgements</h3>
@@ -94,7 +100,8 @@
             <strong>Beka Westberg</strong> for sharing the original dataset that made this project possible.
             <br>
             Link:
-            <a href="http://bekawestberg.me/blog/pattern-language/" target="_blank">http://bekawestberg.me/blog/pattern-language/</a>
+            <a href="http://bekawestberg.me/blog/pattern-language/"
+                target="_blank">http://bekawestberg.me/blog/pattern-language/</a>
         </p>
 
         <h3>Features</h3>
@@ -113,90 +120,148 @@
             <li>This tool forms part of a research paper currently in progress.
             <li>
                 GitHub source of the network (code and data available):
-                <a href="https://github.com/mahmud-tantoush/PatternLanguageInteractiveNetwork">https://github.com/mahmud-tantoush/PatternLanguageInteractiveNetwork</a>
+                <a
+                    href="https://github.com/mahmud-tantoush/PatternLanguageInteractiveNetwork">https://github.com/mahmud-tantoush/PatternLanguageInteractiveNetwork</a>
         </ul>
-        
+
     </section>
 
     <script>
         // ---------- CONFIG ----------
         const PRIMARY_BY = "distanceToLeaf";
-        var LONGEST_NODECHAIN = 5;
+        var LONGEST_NODECHAIN = 130;
         const SECONDARY_BY = "subsection";
-        var SECTION_ORDER = [...Array(LONGEST_NODECHAIN+1).keys(),Infinity];
+        var SECTION_ORDER = [...Array(LONGEST_NODECHAIN + 1).keys(), Infinity];
         const SUBSECTION_ORDER = null;
         const SORT_IN_SUBLAYER = (a, b) => d3.ascending(+a.stars || 0, +b.stars || 0);
 
-        
-        
+
+        const STEP_SIZE =10;
         const MARGIN_X = 250;
         const MARGIN_Y = 60;
         const SECTION_GAP = 25;
         const SUBLAYER_GAP = 12;
         // Adjusted dimensions for standard screen
         const WIDTH = Math.min(1200, window.innerWidth * 0.95);
-        const HEIGHT = (LONGEST_NODECHAIN+1)*300; //Math.min(700, window.innerHeight * 0.8);
-
-        function addDistanceToLeaf(network) {
-  const { nodes, links } = network;
-
-  // Build adjacency and reverse adjacency
-  const adjacency = {};
-  const reverseAdj = {};
-
-  for (const node of nodes) {
-    adjacency[node.id] = [];
-    reverseAdj[node.id] = [];
-  }
-
-  for (const link of links) {
-    adjacency[link.source].push(link.target);
-    reverseAdj[link.target].push(link.source);
-  }
-
-  // Queue for BFS
-  const queue = [];
-
-  // Initialize distances
-  for (const node of nodes) {
-    if (adjacency[node.id].length === 0) {
-      // Leaf nodes
-      node.distanceToLeaf = 0;
-      queue.push(node.id);
-    } else {
-      node.distanceToLeaf = Infinity;
-    }
-  }
-
-  // For quick node lookup
-  const nodeById = Object.fromEntries(
-    nodes.map(n => [n.id, n])
-  );
-
-  // Multi-source BFS from leaves
-  while (queue.length > 0) {
-    const current = queue.shift();
-    const currentDist = nodeById[current].distanceToLeaf;
-
-    for (const prev of reverseAdj[current]) {
-      if (nodeById[prev].distanceToLeaf > currentDist + 1) {
-        nodeById[prev].distanceToLeaf = currentDist + 1;
-        queue.push(prev);
-        //console.log(currentDist + 1);
-      }
-    }
-  }
-
-  return network;
-}
+        const HEIGHT = (LONGEST_NODECHAIN + 1) * 20; //Math.min(700, window.innerHeight * 0.8);
 
 
-        
+        // max path to leaf with dfs
+        function addLongestDistanceToLeaf(network) {
+
+                const { nodes, links } = network;
+
+                // Build directed adjacency list: source → target
+                const adjacency = {};
+                for (const node of nodes) {
+                    adjacency[node.id] = [];
+                }
+
+                for (const link of links) {
+                    adjacency[link.source].push(link.target);
+                }
+
+                const memo = {};
+
+                function dfs(nodeId, visiting) {
+                    // Stop if we hit a cycle (do not continue past it)
+                    if (visiting.has(nodeId)) {
+                        return 0;
+                    }
+
+                    // Use cached result if available
+                    if (memo[nodeId] !== undefined) {
+                        return memo[nodeId];
+                    }
+
+                    visiting.add(nodeId);
+
+                    let longest = 0;
+                    for (const next of adjacency[nodeId]) {
+                        longest = Math.max(longest, 1 + dfs(next, visiting));
+                    }
+
+                    visiting.delete(nodeId);
+
+                    memo[nodeId] = longest;
+                    
+                    return longest;
+                }
+
+                // Compute longest chain starting at each node
+                for (const node of nodes) {
+                    node.distanceToLeaf = (Math.ceil(dfs(node.id, new Set())/STEP_SIZE)*STEP_SIZE);
+                }
+
+                return network;
+            }
+
+
+
+
+
+
+        //Shortest path to leaf with bfs - variance too low for this
+        function addShortestDistanceToLeaf(network) {
+            const { nodes, links } = network;
+
+            // Build adjacency and reverse adjacency
+            const adjacency = {};
+            const reverseAdj = {};
+
+            for (const node of nodes) {
+                adjacency[node.id] = [];
+                reverseAdj[node.id] = [];
+            }
+
+            for (const link of links) {
+                adjacency[link.source].push(link.target);
+                reverseAdj[link.target].push(link.source);
+            }
+
+            // Queue for BFS
+            const queue = [];
+
+            // Initialize distances
+            for (const node of nodes) {
+                if (adjacency[node.id].length === 0) {
+                    // Leaf nodes
+                    node.distanceToLeaf = 0;
+                    queue.push(node.id);
+                } else {
+                    node.distanceToLeaf = Infinity;
+                }
+            }
+
+            // For quick node lookup
+            const nodeById = Object.fromEntries(
+                nodes.map(n => [n.id, n])
+            );
+
+            // Multi-source BFS from leaves
+            while (queue.length > 0) {
+                const current = queue.shift();
+                const currentDist = nodeById[current].distanceToLeaf;
+
+                for (const prev of reverseAdj[current]) {
+                    if (nodeById[prev].distanceToLeaf > currentDist + 1) {
+                        nodeById[prev].distanceToLeaf = currentDist + 1;
+                        queue.push(prev);
+                        //console.log(currentDist + 1);
+                    }
+                }
+            }
+
+            return network;
+        }
+
+
+
 
         (async function () {
             const data = await fetch("https://raw.githubusercontent.com/mahmud-tantoush/PatternLanguageInteractiveNetwork/refs/heads/main/data.json").then(r => r.json());
 
-            
+
             // Normalize
             for (const n of data.nodes) {
                 n.id = String(n.id);
@@ -208,8 +273,8 @@
                 l.target = String(l.target);
             }
 
-            addDistanceToLeaf(data)
-
+            //addShortestDistanceToLeaf(data);
+            addLongestDistanceToLeaf(data);
 
             const nodes = data.nodes.map(d => ({ ...d }));
             const links = data.links.map(d => ({ ...d }));
@@ -314,10 +379,10 @@
                 tooltip
                     .style("opacity", 1)
                     .html(`<strong>${clean(d.name ?? d.id)}</strong><br>
-                        section: ${clean(d.section)}<br>
-                        subsection: ${clean(d.subsection)}<br>
-                        pattern Number: ${clean(d.id)}<br>
-                        stars: ${clean(d.stars)}`);
+                            section: ${clean(d.section)}<br>
+                            subsection: ${clean(d.subsection)}<br>
+                            pattern Number: ${clean(d.id)}<br>
+                            stars: ${clean(d.stars)}`);
             })
                 .on("mousemove", (event) => {
                     tooltip
@@ -479,4 +544,5 @@
 
     </script>
 </body>
+
 </html>
